@@ -1,9 +1,9 @@
 {
-  "name": "my-first-project",
+  "name": "gemini-watermark-remover",
   "version": "1.0.0",
   "private": true,
-  "description": "A minimal Node.js Hello World project.",
+  "description": "Client-side Gemini image and video watermark processing tool.",
   "scripts": {
-    "start": "node main.js"
+    "start": "python -m http.server 8000"
   }
 }
