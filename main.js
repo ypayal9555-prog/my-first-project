@@ -1,5 +1,32 @@
 // No third-party ad redirects run when users export media.
 
+function getDownloadFilename(name, extension) {
+  const stem = String(name || 'file').replace(/\.[^./\\]+$/, '');
+  return 'clean_' + stem + '.' + extension;
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
+}
+
+function triggerFileDownload(url, filename) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  let attached = false;
+  try {
+    document.body.appendChild(link);
+    attached = true;
+    link.click();
+  } catch (error) {
+    console.warn('Download could not start. Use the individual Save button to retry.', error);
+  } finally {
+    if (attached) document.body.removeChild(link);
+  }
+}
+
 // ── 1. Engine Core (alphaMap, blendModes, geometry, tuner) ──
 function calculateAlphaMap(bgCaptureImageData) {
   const { width, height, data } = bgCaptureImageData;
@@ -1354,187 +1381,187 @@ function initImageRemover() {
   async function runBatchImageQueue(imageFiles) {
     if (isProcessing) return;
     isProcessing = true;
-
-    resultsArea.classList.remove('hidden');
-    tunerContainer.classList.add('hidden');
-
     try {
-      if (!watermarkEngine) {
-        setDropzoneLoading(true, 'Initializing Image Engine...');
-        watermarkEngine = await WatermarkEngine.create();
-      }
-    } catch (err) {
-      alert('Could not initialize engine: ' + (err.message || err));
-      isProcessing = false;
-      setDropzoneLoading(false);
-      return;
-    }
-    setDropzoneLoading(false);
 
-    resultsArea.innerHTML = `
-      <div class="card" style="margin-top: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-          <h3 style="font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-            <iconify-icon icon="ph:images-bold" style="color: #6366f1; font-size: 1.4rem;"></iconify-icon>
-            Batch Image Queue (<span id="batch-img-total">${imageFiles.length}</span> Images)
-          </h3>
-          <span id="batch-img-badge" class="badge-featured" style="background: #e0e7ff; color: #4338ca;">Cleaning Images...</span>
-        </div>
-
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">
-            <span id="batch-img-overall-lbl">Processing: 0 of ${imageFiles.length} Completed</span>
-            <span id="batch-img-overall-pct">0%</span>
-          </div>
-          <div class="progress-bar-container" style="height: 10px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
-            <div id="batch-img-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #6366f1; transition: width 0.2s ease;"></div>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
-            <input type="checkbox" id="batch-img-auto-dl" checked style="width: 16px; height: 16px; accent-color: #6366f1;" />
-            <span>Automatically download each clean image when finished</span>
-          </label>
-          <button id="batch-img-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
-            <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Download All Images
-          </button>
-        </div>
-
-        <div id="batch-img-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; max-height: 500px; overflow-y: auto; padding-right: 0.25rem;">
-          ${imageFiles.map((f, idx) => `
-            <div id="batch-img-item-${idx}" style="border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; padding: 0.75rem; text-align: center; transition: all 0.2s ease;">
-              <div id="batch-img-preview-${idx}" style="height: 120px; background: #f1f5f9; border-radius: 0.35rem; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; overflow: hidden;">
-                <iconify-icon icon="ph:image" width="32" style="color: #94a3b8;"></iconify-icon>
-              </div>
-              <p style="font-size: 0.82rem; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin: 0 0 0.5rem 0;">${f.name}</p>
-              <div id="batch-img-action-${idx}">
-                <span style="font-size: 0.72rem; background: #f1f5f9; color: #64748b; padding: 0.2rem 0.5rem; border-radius: 0.25rem;">Waiting</span>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    smoothScrollTo(resultsArea);
-
-    const overallLbl = document.getElementById('batch-img-overall-lbl');
-    const overallPct = document.getElementById('batch-img-overall-pct');
-    const overallBar = document.getElementById('batch-img-overall-bar');
-    const autoDl = document.getElementById('batch-img-auto-dl');
-    const dlAllBtn = document.getElementById('batch-img-dl-all-btn');
-    const badge = document.getElementById('batch-img-badge');
-
-    const completed = [];
-
-    for (let i = 0; i < imageFiles.length; i++) {
-      const file = imageFiles[i];
-      const itemBox = document.getElementById(`batch-img-item-${i}`);
-      const itemAction = document.getElementById(`batch-img-action-${i}`);
-      const itemPreview = document.getElementById(`batch-img-preview-${i}`);
-
-      if (itemBox) {
-        itemBox.style.borderColor = '#6366f1';
-        itemBox.style.background = '#f5f3ff';
-      }
-      if (itemAction) {
-        itemAction.innerHTML = `<span style="font-size: 0.72rem; color: #6366f1; font-weight: 600;">Cleaning...</span>`;
-      }
+      resultsArea.classList.remove('hidden');
+      tunerContainer.classList.add('hidden');
 
       try {
-        const frame = await grabImageFrame(file);
-        const { width, height, imageData } = frame;
-        const base = watermarkEngine.getWatermarkInfo(width, height);
-        const detected = detectWatermarkCandidate(imageData, width, height, watermarkEngine.bg96);
-
-        let imgSettings = { gain: 1.0, offsetX: 0, offsetY: 0, sizeScale: 1 };
-        if (detected) {
-          imgSettings = {
-            gain: detected.gain,
-            offsetX: detected.offsetX,
-            offsetY: detected.offsetY,
-            sizeScale: detected.sizeScale
-          };
-        }
-
-        const copy = new ImageData(new Uint8ClampedArray(imageData.data), width, height);
-        cleanFrame(watermarkEngine.bg96, copy, width, height, base, imgSettings);
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').putImageData(copy, 0, 0);
-
-        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-        const cleanUrl = URL.createObjectURL(blob);
-
-        completed.push({ file, blob, url: cleanUrl });
-
-        if (itemBox) {
-          itemBox.style.borderColor = '#10b981';
-          itemBox.style.background = '#f0fdf4';
-        }
-        if (itemPreview) {
-          itemPreview.innerHTML = `<img src="${cleanUrl}" style="max-height: 100%; max-width: 100%; object-fit: contain; border-radius: 0.25rem;" />`;
-        }
-        if (itemAction) {
-          itemAction.innerHTML = `
-            <a href="${cleanUrl}" download="clean_${file.name.replace(/\\.[^/.]+$/, '')}.png" class="btn btn-primary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: #16a34a; border-color: #16a34a; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
-              <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Save PNG
-            </a>
-          `;
-        }
-
-        if (autoDl && autoDl.checked) {
-          const a = document.createElement('a');
-          a.href = cleanUrl;
-          a.download = `clean_${file.name.replace(/\\.[^/.]+$/, '')}.png`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+        if (!watermarkEngine) {
+          setDropzoneLoading(true, 'Initializing Image Engine...');
+          watermarkEngine = await WatermarkEngine.create();
         }
       } catch (err) {
-        console.error('Failed processing image:', file.name, err);
+        alert('Could not initialize engine: ' + (err.message || err));
+        isProcessing = false;
+        setDropzoneLoading(false);
+        return;
+      }
+      setDropzoneLoading(false);
+      isProcessing = true;
+
+      resultsArea.innerHTML = `
+        <div class="card" style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+            <h3 style="font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+              <iconify-icon icon="ph:images-bold" style="color: #6366f1; font-size: 1.4rem;"></iconify-icon>
+              Batch Image Queue (<span id="batch-img-total">${imageFiles.length}</span> Images)
+            </h3>
+            <span id="batch-img-badge" class="badge-featured" style="background: #e0e7ff; color: #4338ca;">Cleaning Images...</span>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">
+              <span id="batch-img-overall-lbl">Processing: 0 of ${imageFiles.length} Completed</span>
+              <span id="batch-img-overall-pct">0%</span>
+            </div>
+            <div class="progress-bar-container" style="height: 10px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+              <div id="batch-img-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #6366f1; transition: width 0.2s ease;"></div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
+              <input type="checkbox" id="batch-img-auto-dl" checked style="width: 16px; height: 16px; accent-color: #6366f1;" />
+              <span>Automatically download each clean image when finished</span>
+            </label>
+            <button id="batch-img-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+              <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Download All Images
+            </button>
+          </div>
+
+          <p style="font-size: 0.8rem; color: #475569;">Files download separately. Allow multiple downloads if your browser asks. Download All downloads every successful file again.</p>
+          <div id="batch-img-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; max-height: 500px; overflow-y: auto; padding-right: 0.25rem;">
+            ${imageFiles.map((f, idx) => `
+              <div id="batch-img-item-${idx}" style="border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; padding: 0.75rem; text-align: center; transition: all 0.2s ease;">
+                <div id="batch-img-preview-${idx}" style="height: 120px; background: #f1f5f9; border-radius: 0.35rem; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; overflow: hidden;">
+                  <iconify-icon icon="ph:image" width="32" style="color: #94a3b8;"></iconify-icon>
+                </div>
+                <p style="font-size: 0.82rem; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; margin: 0 0 0.5rem 0;">${escapeHtml(f.name)}</p>
+                <div id="batch-img-action-${idx}">
+                  <span style="font-size: 0.72rem; background: #f1f5f9; color: #64748b; padding: 0.2rem 0.5rem; border-radius: 0.25rem;">Waiting</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      smoothScrollTo(resultsArea);
+
+      const overallLbl = document.getElementById('batch-img-overall-lbl');
+      const overallPct = document.getElementById('batch-img-overall-pct');
+      const overallBar = document.getElementById('batch-img-overall-bar');
+      const autoDl = document.getElementById('batch-img-auto-dl');
+      const dlAllBtn = document.getElementById('batch-img-dl-all-btn');
+      const badge = document.getElementById('batch-img-badge');
+
+      const completed = [];
+      let failedCount = 0;
+
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        const itemBox = document.getElementById(`batch-img-item-${i}`);
+        const itemAction = document.getElementById(`batch-img-action-${i}`);
+        const itemPreview = document.getElementById(`batch-img-preview-${i}`);
+
         if (itemBox) {
-          itemBox.style.borderColor = '#ef4444';
-          itemBox.style.background = '#fef2f2';
+          itemBox.style.borderColor = '#6366f1';
+          itemBox.style.background = '#f5f3ff';
         }
         if (itemAction) {
-          itemAction.innerHTML = `<span style="font-size: 0.72rem; color: #ef4444;">Failed</span>`;
+          itemAction.innerHTML = `<span style="font-size: 0.72rem; color: #6366f1; font-weight: 600;">Cleaning...</span>`;
         }
+
+        try {
+          const frame = await grabImageFrame(file);
+          const { width, height, imageData } = frame;
+          const base = watermarkEngine.getWatermarkInfo(width, height);
+          const detected = detectWatermarkCandidate(imageData, width, height, watermarkEngine.bg96);
+
+          let imgSettings = { gain: 1.0, offsetX: 0, offsetY: 0, sizeScale: 1 };
+          if (detected) {
+            imgSettings = {
+              gain: detected.gain,
+              offsetX: detected.offsetX,
+              offsetY: detected.offsetY,
+              sizeScale: detected.sizeScale
+            };
+          }
+
+          const copy = new ImageData(new Uint8ClampedArray(imageData.data), width, height);
+          cleanFrame(watermarkEngine.bg96, copy, width, height, base, imgSettings);
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').putImageData(copy, 0, 0);
+
+          const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+          if (!blob) throw new Error('PNG encoding failed.');
+          const cleanUrl = URL.createObjectURL(blob);
+
+          completed.push({ file, blob, url: cleanUrl });
+
+          if (itemBox) {
+            itemBox.style.borderColor = '#10b981';
+            itemBox.style.background = '#f0fdf4';
+          }
+          if (itemPreview) {
+            itemPreview.innerHTML = `<img src="${cleanUrl}" style="max-height: 100%; max-width: 100%; object-fit: contain; border-radius: 0.25rem;" />`;
+          }
+          if (itemAction) {
+            itemAction.innerHTML = `
+              <a href="${cleanUrl}" download="${escapeHtml(getDownloadFilename(file.name, 'png'))}" class="btn btn-primary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: #16a34a; border-color: #16a34a; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
+                <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Save PNG
+              </a>
+            `;
+          }
+
+          if (autoDl && autoDl.checked) {
+            triggerFileDownload(cleanUrl, getDownloadFilename(file.name, 'png'));
+          }
+        } catch (err) {
+          failedCount++;
+          console.error('Failed processing image:', file.name, err);
+          if (itemBox) {
+            itemBox.style.borderColor = '#ef4444';
+            itemBox.style.background = '#fef2f2';
+          }
+          if (itemAction) {
+            itemAction.innerHTML = `<span style="font-size: 0.72rem; color: #ef4444;">Failed</span>`;
+          }
+        }
+
+        const doneCount = i + 1;
+        const pct = Math.round((doneCount / imageFiles.length) * 100);
+        overallBar.style.width = `${pct}%`;
+        overallPct.textContent = `${pct}%`;
+        overallLbl.textContent = `Processed ${doneCount}/${imageFiles.length}: ${completed.length} succeeded, ${failedCount} failed`;
       }
 
-      const doneCount = i + 1;
-      const pct = Math.round((doneCount / imageFiles.length) * 100);
-      overallBar.style.width = `${pct}%`;
-      overallPct.textContent = `${pct}%`;
-      overallLbl.textContent = `Processing: ${doneCount} of ${imageFiles.length} Completed`;
-    }
+      if (badge) {
+        badge.textContent = failedCount ? `${completed.length} succeeded, ${failedCount} failed` : 'All Completed ✅';
+        badge.style.background = failedCount ? '#fef3c7' : '#dcfce7';
+        badge.style.color = failedCount ? '#92400e' : '#15803d';
+      }
 
-    if (badge) {
-      badge.textContent = 'All Completed ✅';
-      badge.style.background = '#dcfce7';
-      badge.style.color = '#15803d';
+      if (dlAllBtn && completed.length > 0) {
+        dlAllBtn.classList.remove('hidden');
+        dlAllBtn.onclick = () => {
+          if (dlAllBtn.disabled) return;
+          dlAllBtn.disabled = true;
+          completed.forEach(({ file, url }, idx) => {
+            setTimeout(() => {
+              triggerFileDownload(url, getDownloadFilename(file.name, 'png'));
+              if (idx === completed.length - 1) dlAllBtn.disabled = false;
+            }, idx * 400);
+          });
+        };
+      }
+    } finally {
+      isProcessing = false;
     }
-
-    if (dlAllBtn && completed.length > 0) {
-      dlAllBtn.classList.remove('hidden');
-      dlAllBtn.onclick = () => {
-        completed.forEach(({ file, url }, idx) => {
-          setTimeout(() => {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `clean_${file.name.replace(/\\.[^/.]+$/, '')}.png`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }, idx * 400);
-        });
-      };
-    }
-
-    isProcessing = false;
   }
 
   async function handleImageFile(file) {
@@ -1610,7 +1637,7 @@ function initImageRemover() {
             </div>
           </div>
           <div class="mt-4 text-center">
-            <a href="${url}" download="clean_${currentFile.name}" class="btn btn-primary">
+            <a href="${url}" download="${escapeHtml(getDownloadFilename(currentFile.name, 'png'))}" class="btn btn-primary">
               <iconify-icon icon="ph:download-simple-bold" width="16"></iconify-icon>
               Download Cleaned PNG
             </a>
@@ -2025,211 +2052,210 @@ function initVideoRemover() {
   async function runBatchVideoQueue(videoFiles) {
     if (isProcessing) return;
     isProcessing = true;
-
-    resultsArea.classList.remove('hidden');
-    statusContainer.classList.add('hidden');
-    tunerContainer.classList.add('hidden');
-
     try {
-      if (!videoEngine) {
-        setDropzoneLoading(true, 'Initializing Video Engine...');
-        videoEngine = await VideoWatermarkEngine.create();
-      }
-    } catch (err) {
-      alert('Could not initialize video engine: ' + (err.message || err));
-      isProcessing = false;
-      setDropzoneLoading(false);
-      return;
-    }
-    setDropzoneLoading(false);
 
-    resultsArea.innerHTML = `
-      <div class="card" style="margin-top: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-          <h3 style="font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-            <iconify-icon icon="ph:queue-bold" style="color: #6366f1; font-size: 1.4rem;"></iconify-icon>
-            Batch Video Queue (<span id="batch-vid-total">${videoFiles.length}</span> Videos)
-          </h3>
-          <span id="batch-vid-badge" class="badge-featured" style="background: #e0e7ff; color: #4338ca;">Processing Queue...</span>
-        </div>
-
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">
-            <span id="batch-vid-overall-lbl">Overall Progress: 0 of ${videoFiles.length} Completed</span>
-            <span id="batch-vid-overall-pct">0%</span>
-          </div>
-          <div class="progress-bar-container" style="height: 10px; margin-bottom: 1.25rem; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
-            <div id="batch-vid-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #6366f1; transition: width 0.3s ease;"></div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.85rem; color: #475569;">
-            <span id="batch-vid-current-lbl">Preparing first video...</span>
-            <span id="batch-vid-current-pct">0%</span>
-          </div>
-          <div class="progress-bar-container" style="height: 6px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
-            <div id="batch-vid-current-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #10b981; transition: width 0.1s linear;"></div>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-          <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
-            <input type="checkbox" id="batch-vid-auto-dl" checked style="width: 16px; height: 16px; accent-color: #6366f1;" />
-            <span>Automatically download each clean video when finished</span>
-          </label>
-          <button id="batch-vid-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
-            <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Download All Finished
-          </button>
-        </div>
-
-        <div id="batch-vid-list" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 480px; overflow-y: auto; padding-right: 0.25rem;">
-          ${videoFiles.map((f, idx) => `
-            <div id="batch-vid-item-${idx}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; transition: all 0.2s ease;">
-              <div style="display: flex; align-items: center; gap: 0.75rem; overflow: hidden;">
-                <iconify-icon icon="ph:film-strip" width="22" style="color: #64748b; flex-shrink: 0;"></iconify-icon>
-                <div style="overflow: hidden;">
-                  <p style="font-size: 0.88rem; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 300px; margin: 0;">${f.name}</p>
-                  <p style="font-size: 0.75rem; color: #64748b; margin: 0;">${(f.size / (1024 * 1024)).toFixed(1)} MB</p>
-                </div>
-              </div>
-              <div id="batch-vid-action-${idx}">
-                <span style="font-size: 0.75rem; background: #f1f5f9; color: #64748b; padding: 0.25rem 0.55rem; border-radius: 0.25rem; font-weight: 500;">In Queue</span>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    smoothScrollTo(resultsArea);
-
-    const overallLbl = document.getElementById('batch-vid-overall-lbl');
-    const overallPct = document.getElementById('batch-vid-overall-pct');
-    const overallBar = document.getElementById('batch-vid-overall-bar');
-    const currentLbl = document.getElementById('batch-vid-current-lbl');
-    const currentPct = document.getElementById('batch-vid-current-pct');
-    const currentBar = document.getElementById('batch-vid-current-bar');
-    const autoDl = document.getElementById('batch-vid-auto-dl');
-    const dlAllBtn = document.getElementById('batch-vid-dl-all-btn');
-    const badge = document.getElementById('batch-vid-badge');
-
-    const completed = [];
-
-    for (let i = 0; i < videoFiles.length; i++) {
-      const file = videoFiles[i];
-      const itemBox = document.getElementById(`batch-vid-item-${i}`);
-      const itemAction = document.getElementById(`batch-vid-action-${i}`);
-
-      if (itemBox) {
-        itemBox.style.borderColor = '#6366f1';
-        itemBox.style.background = '#f5f3ff';
-      }
-      if (itemAction) {
-        itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #6366f1; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
-          <iconify-icon icon="ph:spinner-gap-bold" style="animation: spin 1s linear infinite;"></iconify-icon> Processing (0%)...
-        </span>`;
-      }
-
-      currentLbl.textContent = `Processing (${i + 1}/${videoFiles.length}): ${file.name}`;
-      currentBar.style.width = '0%';
-      currentPct.textContent = '0%';
+      resultsArea.classList.remove('hidden');
+      statusContainer.classList.add('hidden');
+      tunerContainer.classList.add('hidden');
 
       try {
-        let vidSettings = { gain: 0.6, offsetX: -24, offsetY: -24, sizeScale: 1 };
-        try {
-          const previewFrame = await grabPreviewFrame(file);
-          const detected = detectVideoWatermarkCandidate(previewFrame.imageData, previewFrame.width, previewFrame.height, videoEngine.sparkleImage);
-          if (detected) {
-            vidSettings = {
-              gain: Math.min(0.6, detected.gain),
-              offsetX: detected.offsetX,
-              offsetY: detected.offsetY,
-              sizeScale: detected.sizeScale
-            };
-          }
-        } catch (e) {
-          console.warn('Auto detect fallback to safe default for', file.name, e);
-        }
-
-        const res = await videoEngine.process(file, {
-          ...vidSettings,
-          onProgress: ({ progress }) => {
-            const pct = Math.round(progress * 100);
-            currentBar.style.width = `${pct}%`;
-            currentPct.textContent = `${pct}%`;
-            if (itemAction) {
-              itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #6366f1; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
-                <iconify-icon icon="ph:spinner-gap-bold" style="animation: spin 1s linear infinite;"></iconify-icon> ${pct}%
-              </span>`;
-            }
-          }
-        });
-
-        completed.push({ file, res });
-
-        if (itemBox) {
-          itemBox.style.borderColor = '#10b981';
-          itemBox.style.background = '#f0fdf4';
-        }
-        if (itemAction) {
-          itemAction.innerHTML = `
-            <a href="${res.url}" download="clean_${file.name}" class="btn btn-primary" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; background: #16a34a; border-color: #16a34a; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
-              <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Download Clean MP4
-            </a>
-          `;
-        }
-
-        if (autoDl && autoDl.checked) {
-          const a = document.createElement('a');
-          a.href = res.url;
-          a.download = `clean_${file.name}`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+        if (!videoEngine) {
+          setDropzoneLoading(true, 'Initializing Video Engine...');
+          videoEngine = await VideoWatermarkEngine.create();
         }
       } catch (err) {
-        console.error('Failed video processing:', file.name, err);
+        alert('Could not initialize video engine: ' + (err.message || err));
+        isProcessing = false;
+        setDropzoneLoading(false);
+        return;
+      }
+      setDropzoneLoading(false);
+      isProcessing = true;
+
+      resultsArea.innerHTML = `
+        <div class="card" style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+            <h3 style="font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+              <iconify-icon icon="ph:queue-bold" style="color: #6366f1; font-size: 1.4rem;"></iconify-icon>
+              Batch Video Queue (<span id="batch-vid-total">${videoFiles.length}</span> Videos)
+            </h3>
+            <span id="batch-vid-badge" class="badge-featured" style="background: #e0e7ff; color: #4338ca;">Processing Queue...</span>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">
+              <span id="batch-vid-overall-lbl">Overall Progress: 0 of ${videoFiles.length} Completed</span>
+              <span id="batch-vid-overall-pct">0%</span>
+            </div>
+            <div class="progress-bar-container" style="height: 10px; margin-bottom: 1.25rem; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+              <div id="batch-vid-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #6366f1; transition: width 0.3s ease;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.85rem; color: #475569;">
+              <span id="batch-vid-current-lbl">Preparing first video...</span>
+              <span id="batch-vid-current-pct">0%</span>
+            </div>
+            <div class="progress-bar-container" style="height: 6px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+              <div id="batch-vid-current-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #10b981; transition: width 0.1s linear;"></div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
+              <input type="checkbox" id="batch-vid-auto-dl" checked style="width: 16px; height: 16px; accent-color: #6366f1;" />
+              <span>Automatically download each clean video when finished</span>
+            </label>
+            <button id="batch-vid-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
+              <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Download All Finished
+            </button>
+          </div>
+
+          <p style="font-size: 0.8rem; color: #475569;">Files download separately. Allow multiple downloads if your browser asks. Download All downloads every successful file again.</p>
+          <div id="batch-vid-list" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 480px; overflow-y: auto; padding-right: 0.25rem;">
+            ${videoFiles.map((f, idx) => `
+              <div id="batch-vid-item-${idx}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; transition: all 0.2s ease;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; overflow: hidden;">
+                  <iconify-icon icon="ph:film-strip" width="22" style="color: #64748b; flex-shrink: 0;"></iconify-icon>
+                  <div style="overflow: hidden;">
+                    <p style="font-size: 0.88rem; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 300px; margin: 0;">${escapeHtml(f.name)}</p>
+                    <p style="font-size: 0.75rem; color: #64748b; margin: 0;">${(f.size / (1024 * 1024)).toFixed(1)} MB</p>
+                  </div>
+                </div>
+                <div id="batch-vid-action-${idx}">
+                  <span style="font-size: 0.75rem; background: #f1f5f9; color: #64748b; padding: 0.25rem 0.55rem; border-radius: 0.25rem; font-weight: 500;">In Queue</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      smoothScrollTo(resultsArea);
+
+      const overallLbl = document.getElementById('batch-vid-overall-lbl');
+      const overallPct = document.getElementById('batch-vid-overall-pct');
+      const overallBar = document.getElementById('batch-vid-overall-bar');
+      const currentLbl = document.getElementById('batch-vid-current-lbl');
+      const currentPct = document.getElementById('batch-vid-current-pct');
+      const currentBar = document.getElementById('batch-vid-current-bar');
+      const autoDl = document.getElementById('batch-vid-auto-dl');
+      const dlAllBtn = document.getElementById('batch-vid-dl-all-btn');
+      const badge = document.getElementById('batch-vid-badge');
+
+      const completed = [];
+      let failedCount = 0;
+
+      for (let i = 0; i < videoFiles.length; i++) {
+        const file = videoFiles[i];
+        const itemBox = document.getElementById(`batch-vid-item-${i}`);
+        const itemAction = document.getElementById(`batch-vid-action-${i}`);
+
         if (itemBox) {
-          itemBox.style.borderColor = '#ef4444';
-          itemBox.style.background = '#fef2f2';
+          itemBox.style.borderColor = '#6366f1';
+          itemBox.style.background = '#f5f3ff';
         }
         if (itemAction) {
-          itemAction.innerHTML = `<span style="font-size: 0.75rem; color: #ef4444; font-weight: 600;">Failed: ${err.message || 'Error'}</span>`;
+          itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #6366f1; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
+            <iconify-icon icon="ph:spinner-gap-bold" style="animation: spin 1s linear infinite;"></iconify-icon> Processing (0%)...
+          </span>`;
         }
+
+        currentLbl.textContent = `Processing (${i + 1}/${videoFiles.length}): ${file.name}`;
+        currentBar.style.width = '0%';
+        currentPct.textContent = '0%';
+
+        try {
+          let vidSettings = { gain: 0.6, offsetX: -24, offsetY: -24, sizeScale: 1 };
+          try {
+            const previewFrame = await grabPreviewFrame(file);
+            const detected = detectVideoWatermarkCandidate(previewFrame.imageData, previewFrame.width, previewFrame.height, videoEngine.sparkleImage);
+            if (detected) {
+              vidSettings = {
+                gain: Math.min(0.6, detected.gain),
+                offsetX: detected.offsetX,
+                offsetY: detected.offsetY,
+                sizeScale: detected.sizeScale
+              };
+            }
+          } catch (e) {
+            console.warn('Auto detect fallback to safe default for', file.name, e);
+          }
+
+          const res = await videoEngine.process(file, {
+            ...vidSettings,
+            onProgress: ({ progress }) => {
+              const pct = Math.round(progress * 100);
+              currentBar.style.width = `${pct}%`;
+              currentPct.textContent = `${pct}%`;
+              if (itemAction) {
+                itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #6366f1; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
+                  <iconify-icon icon="ph:spinner-gap-bold" style="animation: spin 1s linear infinite;"></iconify-icon> ${pct}%
+                </span>`;
+              }
+            }
+          });
+
+          completed.push({ file, res });
+
+          if (itemBox) {
+            itemBox.style.borderColor = '#10b981';
+            itemBox.style.background = '#f0fdf4';
+          }
+          if (itemAction) {
+            itemAction.innerHTML = `
+              <a href="${res.url}" download="${escapeHtml(getDownloadFilename(file.name, 'mp4'))}" class="btn btn-primary" style="padding: 0.3rem 0.75rem; font-size: 0.78rem; background: #16a34a; border-color: #16a34a; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <iconify-icon icon="ph:download-simple-bold"></iconify-icon> Download Clean MP4
+              </a>
+            `;
+          }
+
+          if (autoDl && autoDl.checked) {
+            triggerFileDownload(res.url, getDownloadFilename(file.name, 'mp4'));
+          }
+        } catch (err) {
+          failedCount++;
+          console.error('Failed video processing:', file.name, err);
+          if (itemBox) {
+            itemBox.style.borderColor = '#ef4444';
+            itemBox.style.background = '#fef2f2';
+          }
+          if (itemAction) {
+            itemAction.innerHTML = `<span style="font-size: 0.75rem; color: #ef4444; font-weight: 600;">Failed: ${escapeHtml(err.message || 'Error')}</span>`;
+          }
+        }
+
+        const doneCount = i + 1;
+        const overall = Math.round((doneCount / videoFiles.length) * 100);
+        overallBar.style.width = `${overall}%`;
+        overallPct.textContent = `${overall}%`;
+        overallLbl.textContent = `Processed ${doneCount}/${videoFiles.length}: ${completed.length} succeeded, ${failedCount} failed`;
       }
 
-      const doneCount = i + 1;
-      const overall = Math.round((doneCount / videoFiles.length) * 100);
-      overallBar.style.width = `${overall}%`;
-      overallPct.textContent = `${overall}%`;
-      overallLbl.textContent = `Overall Progress: ${doneCount} of ${videoFiles.length} Completed`;
-    }
+      currentLbl.textContent = `${completed.length} succeeded, ${failedCount} failed`;
+      currentBar.style.width = '100%';
+      currentPct.textContent = failedCount ? 'Finished with errors' : 'Done';
+      if (badge) {
+        badge.textContent = failedCount ? `${completed.length} succeeded, ${failedCount} failed` : 'All Completed ✅';
+        badge.style.background = failedCount ? '#fef3c7' : '#dcfce7';
+        badge.style.color = failedCount ? '#92400e' : '#15803d';
+      }
 
-    currentLbl.textContent = `All ${videoFiles.length} videos completed!`;
-    currentBar.style.width = '100%';
-    currentPct.textContent = 'Done';
-    if (badge) {
-      badge.textContent = 'All Completed ✅';
-      badge.style.background = '#dcfce7';
-      badge.style.color = '#15803d';
+      if (dlAllBtn && completed.length > 0) {
+        dlAllBtn.classList.remove('hidden');
+        dlAllBtn.onclick = () => {
+          if (dlAllBtn.disabled) return;
+          dlAllBtn.disabled = true;
+          completed.forEach(({ file, res }, idx) => {
+            setTimeout(() => {
+              triggerFileDownload(res.url, getDownloadFilename(file.name, 'mp4'));
+              if (idx === completed.length - 1) dlAllBtn.disabled = false;
+            }, idx * 600);
+          });
+        };
+      }
+    } finally {
+      isProcessing = false;
     }
-
-    if (dlAllBtn && completed.length > 0) {
-      dlAllBtn.classList.remove('hidden');
-      dlAllBtn.onclick = () => {
-        completed.forEach(({ file, res }, idx) => {
-          setTimeout(() => {
-            const a = document.createElement('a');
-            a.href = res.url;
-            a.download = `clean_${file.name}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }, idx * 600);
-        });
-      };
-    }
-
-    isProcessing = false;
   }
 
   async function handleVideoFile(file) {
@@ -2305,7 +2331,7 @@ function initVideoRemover() {
             </div>
           </div>
           <div class="mt-4 text-center">
-            <a href="${res.url}" download="clean_${currentFile.name}" class="btn btn-primary">
+            <a href="${res.url}" download="${escapeHtml(getDownloadFilename(currentFile.name, 'mp4'))}" class="btn btn-primary">
               <iconify-icon icon="ph:download-simple-bold" width="16"></iconify-icon>
               Download Cleaned Video MP4
             </a>
