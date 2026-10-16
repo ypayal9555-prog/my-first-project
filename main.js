@@ -32,11 +32,7 @@ function removeWatermark(imageData, alphaMap, position, options = {}) {
 
       for (let c = 0; c < 3; c++) {
         const watermarked = imageData.data[imgIdx + c];
-        let effAlpha = alpha;
-        if (effAlpha * LOGO_VALUE > watermarked) {
-          effAlpha = Math.max(0, (watermarked / LOGO_VALUE) * 0.85);
-        }
-        const original = (watermarked - effAlpha * LOGO_VALUE) / (1.0 - effAlpha);
+        const original = (watermarked - alpha * LOGO_VALUE) / (1.0 - alpha);
         imageData.data[imgIdx + c] = Math.max(0, Math.min(255, Math.round(original)));
       }
     }
