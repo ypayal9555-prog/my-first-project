@@ -175,3 +175,86 @@
   :is(.ice-gallery-home, .ice-glass-page) { --glass-surface: #ffffffeb; }
   :is(.ice-gallery-home, .ice-glass-page) > .app-header { background: #fffffff2; }
 }
+
+
+/* Lightweight interaction layer. Native controls remain usable without scripts. */
+:is(.ice-gallery-home, .ice-glass-page) :is(button, a, summary, input, textarea):focus-visible {
+  outline: 3px solid #1684ec;
+  outline-offset: 4px;
+}
+.ice-gallery-home :is(.btn, .tab-btn, .btn-preset, .showcase-choose, .comparison-choice) {
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.ice-gallery-home .dropzone {
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+.ice-gallery-home .dropzone:is(.drag-over, :focus-within) {
+  border-color: #2586ed;
+  background: #e5f2ffb8;
+  box-shadow: inset 0 0 0 2px #2586ed35, 0 8px 28px #147ce516;
+}
+.comparison-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.comparison-choice {
+  min-height: 44px; padding: 9px 17px; border-radius: 999px;
+  border: 1px solid #cfdef1; background: #ffffffad; color: #35465d;
+  font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer;
+  box-shadow: inset 0 1px #fff, 0 2px 6px #34486708;
+}
+.comparison-choice[aria-pressed="true"] {
+  background: #e1f0ff; border-color: #89bdf1; color: #0759b8;
+  box-shadow: inset 0 1px #fff, 0 3px 12px #147ce51a;
+}
+.comparison-caption { margin: 12px 0 0; color: #60738c; font-size: 0.8rem; line-height: 1.6; }
+.ice-gallery-home .faq-icon { transition: transform 200ms ease; }
+.ice-gallery-home details[open] .faq-icon { transform: rotate(180deg); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ice-gallery-home :is(.btn, .btn-preset, .comparison-choice):not(:disabled):hover { transform: translateY(-2px); }
+  .ice-gallery-home :is(.btn, .tab-btn, .btn-preset, .comparison-choice):not(:disabled):active { transform: translateY(1px) scale(.985); }
+  :is(.ice-gallery-home, .ice-glass-page) :is(.step-card, .method-card, .model-card, .feature-card) {
+    transition: transform 350ms ease, opacity 350ms ease, box-shadow 200ms ease;
+  }
+  :is(.ice-gallery-home, .ice-glass-page) :is(.step-card, .method-card, .model-card, .feature-card):hover {
+    transform: translateY(-3px); box-shadow: 0 14px 34px #526c951a, inset 0 1px #fff;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ice-gallery-home .reveal-pending { opacity: 0; transform: translateY(14px); }
+  .ice-gallery-home :is(.step-card, .method-card, .model-card, .feature-card) { transition: opacity 350ms ease, transform 350ms ease; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ice-gallery-home :is(.btn, .tab-btn, .btn-preset, .showcase-choose, .comparison-choice, .dropzone, .faq-icon) { transition: none; }
+}
+
+.ice-gallery-home :is(section[id], .tab-container) { scroll-margin-top: 120px !important; }
+
+
+
+/* The light follows the mouse, while tap and keyboard feedback stay native. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :is(.ice-gallery-home, .ice-glass-page) .cursor-surface {
+    position: relative;
+    transition: transform 220ms ease-out, box-shadow 220ms ease, opacity 350ms ease;
+  }
+  :is(.ice-gallery-home, .ice-glass-page) .cursor-surface::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    pointer-events: none; opacity: 0;
+    background: radial-gradient(220px circle at var(--cursor-x, 50%) var(--cursor-y, 50%), #71baff24, transparent 78%);
+    box-shadow: inset 0 0 0 1px #89c5ff40;
+    transition: opacity 220ms ease;
+  }
+  :is(.ice-gallery-home, .ice-glass-page) .cursor-surface.cursor-active::after { opacity: 1; }
+  :is(.ice-gallery-home, .ice-glass-page) .cursor-surface.cursor-active:not(.reveal-pending):not(.dropzone) {
+    transform: perspective(1100px) translateY(-3px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+    box-shadow: 0 16px 35px #4479b41c, inset 0 1px #fff;
+  }
+  .ice-gallery-home .dropzone:hover { border-color: #65a9f0; box-shadow: inset 0 0 0 1px #65a9f040, 0 8px 28px #147ce514; }
+  :is(.ice-gallery-home, .ice-glass-page) :is(.btn, .showcase-choose, .comparison-choice, .btn-preset, .tab-btn):not(:disabled):hover {
+    box-shadow: 0 6px 20px #147ce52b, inset 0 1px #ffffff91;
+    filter: brightness(1.035);
+  }
+  :is(.ice-gallery-home, .ice-glass-page) :is(.nav-link, .footer-link, .mobile-nav-link) {
+    transition: color 160ms ease, text-shadow 160ms ease;
+  }
+  :is(.ice-gallery-home, .ice-glass-page) :is(.nav-link, .footer-link, .mobile-nav-link):hover { color: #0769df; text-shadow: 0 0 16px #147ce52b; }
+  .ice-gallery-home .faq-question:hover { background-color: #dceeff4d; }
+}
