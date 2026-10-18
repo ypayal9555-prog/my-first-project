@@ -314,7 +314,7 @@ class VideoWatermarkEngine {
 
     if (canEncodeVideo && !(await canEncodeVideo('avc'))) {
       throw new Error(
-        'Your browser cannot encode H.264 video locally. Please try Chrome or Edge desktop.'
+        'This browser/device cannot encode H.264 video locally. Try another browser or device with video encoding support.'
       );
     }
 
@@ -2036,6 +2036,15 @@ function initVideoRemover() {
   }
 
   async function handleVideoFiles(files) {
+    if (!VideoWatermarkEngine.isSupported()) {
+      const note = document.getElementById('video-device-note');
+      if (note) {
+        note.classList.remove('phone-tip');
+        note.textContent = 'Video export is unavailable in this browser/device. Try another browser or a computer. Image removal is still available.';
+        note.focus();
+      }
+      return;
+    }
     const videoFiles = files.filter(f => f.type.startsWith('video/') || /\.(mp4|webm|mov|mkv)$/i.test(f.name));
     if (!videoFiles.length) {
       alert('Please drop or select valid video files (MP4, WebM, MOV).');
@@ -2258,7 +2267,7 @@ function initVideoRemover() {
   }
 
   async function handleVideoFile(file) {
-    if (!file.type.startsWith('video/')) return;
+    if (!file.type.startsWith('video/') && !/\.(mp4|webm|mov|mkv)$/i.test(file.name)) return;
     if (isProcessing) return;
 
     setDropzoneLoading(true, 'Extracting Best Frame & Analyzing...');
@@ -2389,6 +2398,8 @@ function initMobileMenu() {
   const headerActions = document.getElementById('header-actions');
   if (!menuBtn || !headerActions) return;
 
+  menuBtn.setAttribute('aria-controls', 'header-actions');
+
   const iconHamburger = menuBtn.querySelector('.icon-hamburger');
   const iconClose = menuBtn.querySelector('.icon-close');
 
@@ -2423,6 +2434,13 @@ function initMobileMenu() {
   document.addEventListener('click', (e) => {
     if (!headerActions.contains(e.target) && !menuBtn.contains(e.target)) {
       closeMenu();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && headerActions.classList.contains('open')) {
+      closeMenu();
+      menuBtn.focus();
     }
   });
 
