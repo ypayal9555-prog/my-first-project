@@ -1162,7 +1162,7 @@ function initImageRemover() {
     if (currentDetected) {
       if (currentDetected.matchFound) {
         badgeEl.className = 'detect-badge';
-        badgeEl.innerHTML = `<iconify-icon icon="ph:scan" width="16" style="color: #6366f1;"></iconify-icon> <span>Auto-Detected: <strong>${currentDetected.name}</strong> (${Math.round(currentDetected.score * 100)}% match)</span>`;
+        badgeEl.innerHTML = `<iconify-icon icon="ph:scan" width="16" style="color: #4389ed;"></iconify-icon> <span>Auto-Detected: <strong>${currentDetected.name}</strong> (${Math.round(currentDetected.score * 100)}% match)</span>`;
         badgeEl.classList.remove('hidden');
       } else {
         badgeEl.className = 'detect-badge warning';
@@ -1334,7 +1334,7 @@ function initImageRemover() {
     mainCanvas.height = Math.round(height * scale);
     const mctx = mainCanvas.getContext('2d');
     mctx.drawImage(offscreen, 0, 0, mainCanvas.width, mainCanvas.height);
-    mctx.strokeStyle = '#6366f1';
+    mctx.strokeStyle = '#4389ed';
     mctx.lineWidth = 2;
     mctx.strokeRect(wm.x * scale, wm.y * scale, wm.width * scale, wm.height * scale);
 
@@ -1401,28 +1401,28 @@ function initImageRemover() {
       isProcessing = true;
 
       resultsArea.innerHTML = `
-        <div class="card" style="margin-top: 1.5rem;">
+        <div class="card batch-results-card" style="margin-top: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-            <h3 style="font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-              <iconify-icon icon="ph:images-bold" style="color: #6366f1; font-size: 1.4rem;"></iconify-icon>
+            <h3 class="batch-title" style="font-weight: 700; font-size: 1.25rem; margin: 0;">
+              <iconify-icon icon="ph:images-bold" style="color: #4389ed; font-size: 1.4rem;"></iconify-icon>
               Batch Image Queue (<span id="batch-img-total">${imageFiles.length}</span> Images)
             </h3>
-            <span id="batch-img-badge" class="badge-featured" style="background: #e0e7ff; color: #4338ca;">Cleaning Images...</span>
+            <span id="batch-img-badge" class="badge-featured" style="background: #dbeafe; color: #2366c5;">Cleaning Images...</span>
           </div>
 
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div class="batch-progress-panel" style="background: #f2f7ff; border: 1px solid #d8e7fa; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">
               <span id="batch-img-overall-lbl">Processing: 0 of ${imageFiles.length} Completed</span>
               <span id="batch-img-overall-pct">0%</span>
             </div>
             <div class="progress-bar-container" style="height: 10px; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
-              <div id="batch-img-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #6366f1; transition: width 0.2s ease;"></div>
+              <div id="batch-img-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; transition: width 0.2s ease;"></div>
             </div>
           </div>
 
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
-              <input type="checkbox" id="batch-img-auto-dl" style="width: 16px; height: 16px; accent-color: #6366f1;" />
+              <input type="checkbox" id="batch-img-auto-dl" style="width: 16px; height: 16px; accent-color: #4389ed;" />
               <span>Automatically download each clean image when finished</span>
             </label>
             <button id="batch-img-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
@@ -1433,7 +1433,7 @@ function initImageRemover() {
           <p style="font-size: 0.8rem; color: #475569;">Files download separately. Allow multiple downloads if your browser asks. Download All downloads every successful file again.</p>
           <div id="batch-img-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; max-height: 500px; overflow-y: auto; padding-right: 0.25rem;">
             ${imageFiles.map((f, idx) => `
-              <div id="batch-img-item-${idx}" style="border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; padding: 0.75rem; text-align: center; transition: all 0.2s ease;">
+              <div id="batch-img-item-${idx}" class="batch-item" style="border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffffb8; padding: 0.75rem; text-align: center; transition: all 0.2s ease;">
                 <div id="batch-img-preview-${idx}" style="height: 120px; background: #f1f5f9; border-radius: 0.35rem; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; overflow: hidden;">
                   <iconify-icon icon="ph:image" width="32" style="color: #94a3b8;"></iconify-icon>
                 </div>
@@ -1466,11 +1466,11 @@ function initImageRemover() {
         const itemPreview = document.getElementById(`batch-img-preview-${i}`);
 
         if (itemBox) {
-          itemBox.style.borderColor = '#6366f1';
-          itemBox.style.background = '#f5f3ff';
+          itemBox.style.borderColor = '#4389ed';
+          itemBox.style.background = '#eff6ff';
         }
         if (itemAction) {
-          itemAction.innerHTML = `<span style="font-size: 0.72rem; color: #6366f1; font-weight: 600;">Cleaning...</span>`;
+          itemAction.innerHTML = `<span style="font-size: 0.72rem; color: #4389ed; font-weight: 600;">Cleaning...</span>`;
         }
 
         try {
@@ -1620,7 +1620,7 @@ function initImageRemover() {
 
       resultsArea.classList.remove('hidden');
       resultsArea.innerHTML = `
-        <div class="card">
+        <div class="card result-card">
           <h3 class="font-bold text-center mb-4">Image Watermark Cleaned Successfully!</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -1725,7 +1725,7 @@ function initVideoRemover() {
     if (currentDetected) {
       if (currentDetected.matchFound) {
         badgeEl.className = 'detect-badge';
-        badgeEl.innerHTML = `<iconify-icon icon="ph:scan" width="16" style="color: #6366f1;"></iconify-icon> <span>Auto-Detected: <strong>${currentDetected.name}</strong> (${Math.round(currentDetected.score * 100)}% match)</span>`;
+        badgeEl.innerHTML = `<iconify-icon icon="ph:scan" width="16" style="color: #4389ed;"></iconify-icon> <span>Auto-Detected: <strong>${currentDetected.name}</strong> (${Math.round(currentDetected.score * 100)}% match)</span>`;
         badgeEl.classList.remove('hidden');
       } else {
         badgeEl.className = 'detect-badge warning';
@@ -2006,7 +2006,7 @@ function initVideoRemover() {
     mainCanvas.height = Math.round(height * scale);
     const mctx = mainCanvas.getContext('2d');
     mctx.drawImage(offscreen, 0, 0, mainCanvas.width, mainCanvas.height);
-    mctx.strokeStyle = '#6366f1';
+    mctx.strokeStyle = '#4389ed';
     mctx.lineWidth = 2;
     mctx.strokeRect(wm.x * scale, wm.y * scale, wm.width * scale, wm.height * scale);
 
@@ -2072,22 +2072,22 @@ function initVideoRemover() {
       isProcessing = true;
 
       resultsArea.innerHTML = `
-        <div class="card" style="margin-top: 1.5rem;">
+        <div class="card batch-results-card" style="margin-top: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-            <h3 style="font-weight: 700; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-              <iconify-icon icon="ph:queue-bold" style="color: #6366f1; font-size: 1.4rem;"></iconify-icon>
+            <h3 class="batch-title" style="font-weight: 700; font-size: 1.25rem; margin: 0;">
+              <iconify-icon icon="ph:queue-bold" style="color: #4389ed; font-size: 1.4rem;"></iconify-icon>
               Batch Video Queue (<span id="batch-vid-total">${videoFiles.length}</span> Videos)
             </h3>
-            <span id="batch-vid-badge" class="badge-featured" style="background: #e0e7ff; color: #4338ca;">Processing Queue...</span>
+            <span id="batch-vid-badge" class="badge-featured" style="background: #dbeafe; color: #2366c5;">Processing Queue...</span>
           </div>
 
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div class="batch-progress-panel" style="background: #f2f7ff; border: 1px solid #d8e7fa; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; font-weight: 600;">
               <span id="batch-vid-overall-lbl">Overall Progress: 0 of ${videoFiles.length} Completed</span>
               <span id="batch-vid-overall-pct">0%</span>
             </div>
             <div class="progress-bar-container" style="height: 10px; margin-bottom: 1.25rem; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
-              <div id="batch-vid-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; background: #6366f1; transition: width 0.3s ease;"></div>
+              <div id="batch-vid-overall-bar" class="progress-bar-fill" style="width: 0%; height: 100%; transition: width 0.3s ease;"></div>
             </div>
 
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.85rem; color: #475569;">
@@ -2101,7 +2101,7 @@ function initVideoRemover() {
 
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
-              <input type="checkbox" id="batch-vid-auto-dl" style="width: 16px; height: 16px; accent-color: #6366f1;" />
+              <input type="checkbox" id="batch-vid-auto-dl" style="width: 16px; height: 16px; accent-color: #4389ed;" />
               <span>Automatically download each clean video when finished</span>
             </label>
             <button id="batch-vid-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
@@ -2112,7 +2112,7 @@ function initVideoRemover() {
           <p style="font-size: 0.8rem; color: #475569;">Files download separately. Allow multiple downloads if your browser asks. Download All downloads every successful file again.</p>
           <div id="batch-vid-list" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 480px; overflow-y: auto; padding-right: 0.25rem;">
             ${videoFiles.map((f, idx) => `
-              <div id="batch-vid-item-${idx}" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; transition: all 0.2s ease;">
+              <div id="batch-vid-item-${idx}" class="batch-item" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffffb8; transition: all 0.2s ease;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; overflow: hidden;">
                   <iconify-icon icon="ph:film-strip" width="22" style="color: #64748b; flex-shrink: 0;"></iconify-icon>
                   <div style="overflow: hidden;">
@@ -2150,11 +2150,11 @@ function initVideoRemover() {
         const itemAction = document.getElementById(`batch-vid-action-${i}`);
 
         if (itemBox) {
-          itemBox.style.borderColor = '#6366f1';
-          itemBox.style.background = '#f5f3ff';
+          itemBox.style.borderColor = '#4389ed';
+          itemBox.style.background = '#eff6ff';
         }
         if (itemAction) {
-          itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #6366f1; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
+          itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #4389ed; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
             <iconify-icon icon="ph:spinner-gap-bold" style="animation: spin 1s linear infinite;"></iconify-icon> Processing (0%)...
           </span>`;
         }
@@ -2187,7 +2187,7 @@ function initVideoRemover() {
               currentBar.style.width = `${pct}%`;
               currentPct.textContent = `${pct}%`;
               if (itemAction) {
-                itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #6366f1; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
+                itemAction.innerHTML = `<span style="font-size: 0.78rem; color: #4389ed; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
                   <iconify-icon icon="ph:spinner-gap-bold" style="animation: spin 1s linear infinite;"></iconify-icon> ${pct}%
                 </span>`;
               }
@@ -2317,16 +2317,16 @@ function initVideoRemover() {
       resultsArea.classList.remove('hidden');
 
       resultsArea.innerHTML = `
-        <div class="card">
+        <div class="card result-card">
           <h3 class="font-bold text-center mb-4">Video Watermark Cleaned Successfully!</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p class="text-xs mb-2">Original Video</p>
-              <video src="${res.originalUrl}" controls playsinline style="width:100%; max-height:280px;"></video>
+              <video src="${res.originalUrl}" controls playsinline class="result-video" style="width:100%; max-height:280px;"></video>
             </div>
             <div>
               <p class="text-xs mb-2 text-green-600">Cleaned Video</p>
-              <video src="${res.url}" controls playsinline style="width:100%; max-height:280px;"></video>
+              <video src="${res.url}" controls playsinline class="result-video" style="width:100%; max-height:280px;"></video>
             </div>
           </div>
           <div class="mt-4 text-center">
