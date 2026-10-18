@@ -297,3 +297,15 @@
 @media (prefers-reduced-motion: reduce) {
   .showcase-hotspot { transition: none !important; }
 }
+
+
+/* Move the illustration itself; the card hit areas stay still for reliable clicks. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .ice-gallery-home .has-card-hotspots > .ice-gallery-image {
+    transform-origin: center; transition: transform 220ms ease-out, filter 220ms ease-out;
+  }
+  .ice-gallery-home .has-card-hotspots.gallery-tilting > .ice-gallery-image {
+    transform: perspective(900px) translateY(-5px) rotateX(var(--gallery-tilt-x, 0deg)) rotateY(var(--gallery-tilt-y, 0deg)) scale(1.015);
+    filter: drop-shadow(0 24px 27px #3d6aa52b);
+  }
+}
