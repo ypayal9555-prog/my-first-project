@@ -3350,3 +3350,127 @@ body {
   .hero-workspace > #panel-image, .hero-workspace > #panel-video { padding: 0.75rem; }
   .hero-workspace .dropzone-title { font-size: 1rem; }
 }
+
+/* Ice Glass: selected design 3, with a complete paired gallery on the right. */
+.ice-gallery-home {
+  background:
+    radial-gradient(ellipse at 10% 12%, #cce3ff 0, transparent 42%),
+    radial-gradient(ellipse at 95% 45%, #dcecff 0, transparent 48%),
+    linear-gradient(135deg, #e9f2ff, #f5f9ff 55%, #d4e7ff);
+  background-attachment: fixed;
+}
+.ice-gallery-home > .app-header {
+  width: calc(100% - 64px);
+  max-width: 1512px;
+  margin: 16px auto 0;
+  top: 12px;
+  background: #ffffff9c;
+  border: 1px solid #ffffffb3;
+  border-radius: 999px;
+  box-shadow: 0 8px 32px #689de60b;
+}
+.ice-gallery-home .header-container { max-width: none; padding: 1rem 1.75rem; }
+.ice-gallery-home > .container { max-width: 1600px; padding: 2.5rem 2.5rem 3rem; }
+.ice-gallery-home .hero-workspace {
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  column-gap: 28px;
+  row-gap: 0;
+  margin-bottom: 4rem;
+}
+.ice-gallery-home .hero-workspace > .hero-section {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+  margin: 1.25rem 0 1.75rem;
+}
+.ice-gallery-home .hero-title {
+  font-size: clamp(2.4rem, 3.6vw, 3.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  margin-bottom: 1rem;
+}
+.ice-gallery-home .hero-description { margin: 0; font-size: 1.12rem; color: #7688aa; }
+.ice-gallery-home .hero-badges { justify-content: flex-start; margin-top: 1.5rem; gap: 12px; }
+.ice-gallery-home .hero-badge-pill { background: #ffffffa6; border-color: #ffffffb3; box-shadow: none; }
+.ice-gallery-home .hero-workspace > .tab-container {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 18px 18px 12px;
+  border: 1px solid #ffffffc9;
+  border-bottom: 0;
+  border-radius: 28px 28px 0 0;
+  background: #ffffff9c;
+  backdrop-filter: blur(16px);
+}
+.ice-gallery-home .tab-btn { padding: 0.85rem; border-radius: 16px; }
+.ice-gallery-home .tab-btn.active { background: #d5e7ff; color: #1450b6; box-shadow: none; }
+.ice-gallery-home .hero-workspace > #panel-image,
+.ice-gallery-home .hero-workspace > #panel-video {
+  grid-column: 1;
+  grid-row: 3;
+  padding: 0 18px 18px;
+  border: 1px solid #ffffffc9;
+  border-top: 0;
+  border-radius: 0 0 28px 28px;
+  background: #ffffff9c;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px #7ba8e414;
+}
+.ice-gallery-home .dropzone {
+  background: #ffffff2e;
+  border: 1.5px dashed #a8c8ff;
+  border-radius: 18px;
+  min-height: 260px;
+  padding: 1.75rem 1.1rem;
+}
+.ice-gallery-home .dropzone-icon { color: #6198ef; }
+.ice-gallery-home .showcase-choose {
+  background: linear-gradient(110deg, #387eff, #78b9ff);
+  border: 1px solid #76b3ff;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px #3b82f62b;
+}
+.ice-gallery {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  align-self: center;
+  width: 100%;
+  min-width: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.ice-gallery-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+}
+@media (max-width: 1100px) {
+  .ice-gallery-home > .container { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .ice-gallery-home .hero-workspace { column-gap: 16px; }
+  .ice-gallery-home .hero-workspace .hero-title { font-size: clamp(2rem, 3.6vw, 2.8rem); }
+}
+@media (max-width: 850px) {
+  .ice-gallery-home .hero-workspace { grid-template-columns: minmax(0, 1fr); }
+  .ice-gallery-home .hero-workspace > .hero-section { grid-column: 1; grid-row: 1; text-align: center; }
+  .ice-gallery-home .hero-description { margin-left: auto; margin-right: auto; }
+  .ice-gallery-home .hero-badges { justify-content: center; }
+  .ice-gallery-home .hero-workspace > .tab-container { grid-column: 1; grid-row: 2; }
+  .ice-gallery-home .hero-workspace > #panel-image,
+  .ice-gallery-home .hero-workspace > #panel-video { grid-column: 1; grid-row: 3; }
+  .ice-gallery { grid-column: 1; grid-row: 4; max-width: 620px; justify-self: center; margin-top: 1.5rem; }
+  .ice-gallery-home > .app-header { width: calc(100% - 24px); border-radius: 24px; }
+  .ice-gallery-home .header-container { padding: 0.8rem 1rem; }
+}
+@media (max-width: 480px) {
+  .ice-gallery-home > .container { padding: 1.5rem 0.75rem 2rem; }
+  .ice-gallery-home .hero-workspace .hero-title { font-size: 2rem; }
+  .ice-gallery-home .hero-description { font-size: 1rem; }
+  .ice-gallery-home .hero-workspace > .tab-container { padding: 12px 12px 10px; }
+  .ice-gallery-home .hero-workspace > #panel-image,
+  .ice-gallery-home .hero-workspace > #panel-video { padding: 0 12px 12px; }
+}

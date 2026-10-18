@@ -252,11 +252,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://code.iconify.design">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261018-design-one" />
+  <link rel="stylesheet" href="./style.css?v=20261018-ice-gallery" />
   <script defer src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 
-<body class="showcase-home">
+<body class="showcase-home ice-gallery-home">
 
   <!-- Top Navigation Header -->
   <header class="app-header">
@@ -360,9 +360,9 @@
     <div class="hero-workspace">
     <!-- Hero Section -->
     <div class="hero-section">
-      <h1 class="hero-title">Free Gemini Watermark Remover &amp; Logo Remover</h1>
+      <h1 class="hero-title">Gemini &amp; Veo<br />Watermark Remover</h1>
       <p class="hero-description">
-        Remove Gemini and Veo watermarks in your browser.
+        Remove watermarks privately in your browser.
       </p>
       <div class="hero-badges">
         <span class="hero-badge-pill"><iconify-icon icon="ph:sparkle-bold" width="15"
@@ -374,21 +374,15 @@
       </div>
     </div>
 
-    <!-- Left Decorative Background Frame -->
-    <div class="hero-bg-frame-container left" aria-hidden="true">
-      <div class="hero-bg-frame">
-        <img src="./assets/gemini-before-after.png" alt="Illustration of Gemini image before and after watermark removal" class="hero-bg-img" width="1156"
-          height="1361" loading="lazy" decoding="async" fetchpriority="low" />
-      </div>
-    </div>
-
-    <!-- Right Decorative Background Frame -->
-    <div class="hero-bg-frame-container right" aria-hidden="true">
-      <div class="hero-bg-frame">
-        <img src="./assets/veo-before-after.png" alt="Illustration of Veo 3 video before and after watermark removal" class="hero-bg-img"
-          width="1145" height="1373" loading="lazy" decoding="async" fetchpriority="low" />
-      </div>
-    </div>
+    <!-- One complete matching example set is selected once for each page load. -->
+    <aside class="ice-gallery" aria-label="Illustrative before and after examples">
+      <img id="showcase-gallery" class="ice-gallery-image" width="1536" height="1024"
+        alt="Illustrative Gemini image and Veo video before and after watermark removal"
+        decoding="async" fetchpriority="high" />
+      <script src="./showcase.js?v=20261018-ice-gallery"></script>
+      <noscript><img class="ice-gallery-image" src="./assets/showcase-nature.png" width="1536" height="1024"
+        alt="Illustrative nature examples before and after watermark removal" /></noscript>
+    </aside>
 
     <!-- Tab Switcher -->
     <div class="tab-container">
