@@ -18,6 +18,35 @@
   const host = gallery.closest('.ice-gallery');
   if (!host) return;
   host.classList.add('has-card-hotspots');
+  const tiltPreference = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+  let tiltFrame = 0, tiltBounds = null, tiltX = 0, tiltY = 0;
+  function resetGalleryTilt() {
+    if (tiltFrame) cancelAnimationFrame(tiltFrame);
+    tiltFrame = 0; tiltBounds = null;
+    host.classList.remove('gallery-tilting');
+    host.style.removeProperty('--gallery-tilt-x');
+    host.style.removeProperty('--gallery-tilt-y');
+  }
+  host.addEventListener('pointermove', event => {
+    if (!tiltPreference.matches || event.pointerType !== 'mouse' || dialog.open) { resetGalleryTilt(); return; }
+    if (!tiltBounds) tiltBounds = host.getBoundingClientRect();
+    if (!tiltBounds.width || !tiltBounds.height) return;
+    const px = Math.max(0, Math.min(1, (event.clientX - tiltBounds.left) / tiltBounds.width));
+    const py = Math.max(0, Math.min(1, (event.clientY - tiltBounds.top) / tiltBounds.height));
+    tiltX = (0.5 - py) * 8; tiltY = (px - 0.5) * 8;
+    if (!tiltFrame) tiltFrame = requestAnimationFrame(() => {
+      tiltFrame = 0;
+      host.style.setProperty('--gallery-tilt-x', tiltX.toFixed(2) + 'deg');
+      host.style.setProperty('--gallery-tilt-y', tiltY.toFixed(2) + 'deg');
+      host.classList.add('gallery-tilting');
+    });
+  }, {passive: true});
+  host.addEventListener('pointerleave', resetGalleryTilt);
+  window.addEventListener('blur', resetGalleryTilt);
+  window.addEventListener('scroll', resetGalleryTilt, {passive: true, capture: true});
+  window.addEventListener('resize', resetGalleryTilt, {passive: true});
+  document.addEventListener('visibilitychange', resetGalleryTilt);
+  tiltPreference.addEventListener('change', resetGalleryTilt);
   const ns = 'http://www.w3.org/2000/svg';
   const labels = ['Gemini image — Before', 'Gemini image — After', 'Veo video — Before', 'Veo video — After'];
   const layouts = {
@@ -61,6 +90,7 @@
       preview.setAttribute('aria-label', label + ' illustrative example');
       photo.setAttribute('href', gallery.currentSrc || gallery.src);
       photo.setAttribute('width', String(width)); photo.setAttribute('height', String(height));
+      resetGalleryTilt();
       dialog.showModal();
     });
     host.append(button);
