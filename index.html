@@ -252,7 +252,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://code.iconify.design">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261018-complete-ice-glass" />
+  <link rel="stylesheet" href="./style.css?v=20261018-mobile-ready" />
   <script defer src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 
@@ -459,28 +459,28 @@
         <div class="tuner-sliders mt-2">
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Strength (Gain)</span>
+              <label for="slider-img-gain">Strength (Gain)</label>
               <span id="lbl-img-gain">0.60x</span>
             </div>
             <input type="range" id="slider-img-gain" min="0.1" max="3" step="0.05" value="0.6" />
           </div>
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Size Scale</span>
+              <label for="slider-img-scale">Size Scale</label>
               <span id="lbl-img-scale">1.00x</span>
             </div>
             <input type="range" id="slider-img-scale" min="0.5" max="2" step="0.05" value="1.0" />
           </div>
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Position X</span>
+              <label for="slider-img-offset-x">Position X</label>
               <span id="lbl-img-offset-x">-128px</span>
             </div>
             <input type="range" id="slider-img-offset-x" min="-250" max="150" step="1" value="-128" />
           </div>
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Position Y</span>
+              <label for="slider-img-offset-y">Position Y</label>
               <span id="lbl-img-offset-y">-128px</span>
             </div>
             <input type="range" id="slider-img-offset-y" min="-250" max="150" step="1" value="-128" />
@@ -502,6 +502,7 @@
 
     <!-- Video Removal Panel -->
     <section id="panel-video" class="card hidden">
+      <p id="video-device-note" class="device-note phone-tip" role="status" tabindex="-1">On phones, keep this tab open and the screen awake while exporting. Process one video at a time if memory is limited.</p>
       <div id="video-dropzone" class="dropzone">
         <div class="dropzone-icon">
           <iconify-icon icon="ph:video-bold"></iconify-icon>
@@ -566,28 +567,28 @@
         <div class="tuner-sliders mt-2">
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Strength (Gain)</span>
+              <label for="slider-video-gain">Strength (Gain)</label>
               <span id="lbl-video-gain">0.60x</span>
             </div>
             <input type="range" id="slider-video-gain" min="0.1" max="3" step="0.05" value="0.6" />
           </div>
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Size Scale</span>
+              <label for="slider-video-scale">Size Scale</label>
               <span id="lbl-video-scale">1.00x</span>
             </div>
             <input type="range" id="slider-video-scale" min="0.5" max="2" step="0.05" value="1.0" />
           </div>
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Position X</span>
+              <label for="slider-video-offset-x">Position X</label>
               <span id="lbl-video-offset-x">-24px</span>
             </div>
             <input type="range" id="slider-video-offset-x" min="-150" max="150" step="1" value="-24" />
           </div>
           <div class="slider-group">
             <div class="tuner-slider-label">
-              <span>Position Y</span>
+              <label for="slider-video-offset-y">Position Y</label>
               <span id="lbl-video-offset-y">-24px</span>
             </div>
             <input type="range" id="slider-video-offset-y" min="-150" max="150" step="1" value="-24" />
@@ -1304,7 +1305,7 @@
     </footer>
   </main>
 
-  <script src="./main.js?v=20261018-complete-ice-glass"></script>
+  <script src="./main.js?v=20261018-mobile-ready"></script>
 </body>
 
 </html>
