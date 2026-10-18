@@ -309,3 +309,45 @@
     filter: drop-shadow(0 24px 27px #3d6aa52b);
   }
 }
+
+
+/* Header wordmark: soft light, a responsive sparkle and native link feedback. */
+:is(.ice-gallery-home, .ice-glass-page) .app-header .brand {
+  position: relative; isolation: isolate; border-radius: 16px;
+  -webkit-tap-highlight-color: transparent; opacity: 1;
+}
+:is(.ice-gallery-home, .ice-glass-page) .app-header .brand::before {
+  content: ''; position: absolute; inset: -9px -12px; z-index: -1;
+  pointer-events: none; border-radius: 20px; opacity: 0;
+  background: radial-gradient(110px circle at var(--brand-light-x, 35%) var(--brand-light-y, 50%), #a7d8ff60, #d6caff26 65%, transparent);
+}
+:is(.ice-gallery-home, .ice-glass-page) .app-header .brand-title { position: relative; }
+:is(.ice-gallery-home, .ice-glass-page) .app-header .brand-title::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -5px; height: 2px;
+  border-radius: 2px; background: linear-gradient(90deg, #4aa6ff, #9a72ec, transparent);
+  transform: scaleX(0); transform-origin: left; opacity: 0;
+}
+:is(.ice-gallery-home, .ice-glass-page) .app-header .brand:focus-visible {
+  outline: 2px solid #147ce5; outline-offset: 7px;
+}
+:is(.ice-gallery-home, .ice-glass-page) .app-header .brand:focus-visible .brand-title::after {
+  transform: scaleX(1); opacity: 1;
+}
+:is(.ice-gallery-home, .ice-glass-page) .app-header .brand:is(:active, .brand-pressed)::before { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand { transition: transform 180ms ease, opacity 180ms ease; }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand::before { transition: opacity 200ms ease; }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand-title::after { transition: transform 220ms ease, opacity 200ms ease; }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand > img { transition: transform 240ms ease, filter 240ms ease; }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand .brand-text { transition: transform 200ms ease; }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand:is(:active, .brand-pressed) { transform: scale(.985); }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand.brand-engaged::before { opacity: 1; }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand.brand-engaged > img {
+    transform: translate(var(--brand-icon-x, 0px), var(--brand-icon-y, 0px)) rotate(var(--brand-twist, 0deg)) scale(1.1);
+    filter: drop-shadow(0 3px 8px #8780ed66);
+  }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand.brand-engaged .brand-text { transform: translateX(var(--brand-text-x, 0px)); }
+  :is(.ice-gallery-home, .ice-glass-page) .app-header .brand.brand-engaged .brand-title::after { transform: scaleX(1); opacity: .7; }
+}
