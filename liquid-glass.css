@@ -1,0 +1,177 @@
+/* Liquid Glass inspired presentation. All media processing stays in main.js. */
+:is(body.ice-gallery-home, body.ice-glass-page) {
+  --text-main: #182230;
+  --text-muted: #59677a;
+  --brand-primary: #0769df;
+  --brand-primary-hover: #005cc8;
+  --brand-gradient: linear-gradient(180deg, #368cff, #086be5);
+  --glass-surface: linear-gradient(145deg, #ffffffb8, #ffffff66);
+  --glass-edge: #ffffffd9;
+  --glass-shadow: inset 0 1px 1px #ffffff, inset 0 -1px 1px #ffffff66,
+    0 18px 48px #34486712, 0 2px 6px #34486708;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #f2f5fa;
+  background-image:
+    radial-gradient(ellipse at 8% 12%, #cce8ffcc, transparent 58%),
+    radial-gradient(ellipse at 93% 24%, #dfd8ffc2, transparent 55%),
+    radial-gradient(ellipse at 55% 4%, #ffffff, transparent 55%);
+  background-size: 100% 1000px, 100% 1100px, 100% 900px;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  color: var(--text-main);
+}
+
+:is(.ice-gallery-home, .ice-glass-page) > .app-header {
+  background: linear-gradient(120deg, #ffffffe0, #ffffff80 65%, #ffffffa8);
+  border: 1px solid #fffffff2;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+}
+:is(.ice-gallery-home, .ice-glass-page) .brand-title { font-weight: 650; letter-spacing: -0.035em; }
+:is(.ice-gallery-home, .ice-glass-page) .nav-link { color: #4e5b6c; font-weight: 500; }
+:is(.ice-gallery-home, .ice-glass-page) .nav-link:hover { color: var(--brand-primary); }
+
+.ice-gallery-home .hero-title {
+  color: #182230;
+  font-weight: 650;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.ice-gallery-home .hero-description { color: #5b6a7f; font-weight: 400; }
+.ice-gallery-home .hero-badge-pill {
+  border: 1px solid #fffffff0;
+  background: linear-gradient(145deg, #ffffffbb, #ffffff70);
+  box-shadow: inset 0 1px #ffffff, 0 3px 10px #3d55780a;
+  color: #354257;
+  font-weight: 500;
+}
+.ice-gallery-home .hero-workspace > .tab-container {
+  border-color: var(--glass-edge);
+  border-radius: 30px 30px 0 0;
+  background: var(--glass-surface);
+  box-shadow: inset 0 1px 1px #ffffff;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.ice-gallery-home .hero-workspace > :is(#panel-image, #panel-video) {
+  border-color: var(--glass-edge);
+  border-radius: 0 0 30px 30px;
+  background: var(--glass-surface);
+  box-shadow: inset 0 -1px 1px #ffffff88, 0 22px 52px #34486712;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.ice-gallery-home .tab-btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #5a6779;
+  font-weight: 600;
+  transition: background 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+.ice-gallery-home .tab-btn.active {
+  border-color: #fffffff5;
+  background: linear-gradient(180deg, #ffffffed, #ffffff99);
+  box-shadow: inset 0 1px #ffffff, 0 3px 10px #34486712, 0 1px 2px #3448670d;
+  color: #0763cf;
+}
+.ice-gallery-home .dropzone {
+  border: 1px dashed #a5bcd699;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #ffffff55, #ffffff22);
+  box-shadow: inset 0 1px 5px #ffffff88;
+}
+.ice-gallery-home .dropzone:hover,
+.ice-gallery-home .dropzone.drag-over { border-color: #4f91e2; background: #ffffff77; }
+.ice-gallery-home .dropzone-icon { color: #488bdc; }
+.ice-gallery-home .dropzone-title { color: #28384e; font-weight: 600; }
+.ice-gallery-home .dropzone-sub { color: #607088; }
+.ice-gallery-home .showcase-choose,
+:is(.ice-gallery-home, .ice-glass-page) .btn-primary,
+.ice-gallery-home .tuner-actions .btn-primary {
+  min-height: 48px;
+  border: 1px solid #0065d926;
+  border-radius: 999px;
+  background: var(--brand-gradient);
+  box-shadow: inset 0 1px #ffffff5c, 0 7px 16px #0069e32b, 0 1px 3px #0069e324;
+  color: #ffffff;
+  font-weight: 600;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+.ice-gallery-home .showcase-choose:hover,
+:is(.ice-gallery-home, .ice-glass-page) .btn-primary:hover,
+.ice-gallery-home .tuner-actions .btn-primary:hover {
+  background: linear-gradient(180deg, #2582ff, #005ed5);
+  box-shadow: inset 0 1px #ffffff5c, 0 9px 22px #0069e333;
+}
+:is(.ice-gallery-home, .ice-glass-page) :is(.btn-secondary, .btn-preset),
+.ice-gallery-home .tuner-actions .btn-secondary {
+  border: 1px solid #ffffffed;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #ffffffcf, #ffffff7a);
+  box-shadow: inset 0 1px #ffffff, 0 2px 5px #3448670a;
+  color: #35465d;
+}
+.ice-gallery-home .btn-preset.active {
+  border-color: #80b7f399;
+  background: linear-gradient(145deg, #e4f2ff, #cce5ffb8);
+  box-shadow: inset 0 1px #ffffff, 0 2px 6px #0069e312;
+  color: #0759b8;
+}
+
+:is(.ice-gallery-home, .ice-glass-page) :is(.step-card, .method-card, .model-card,
+    .feature-card, .faq-item, .video-guide-card, .synthid-card, .page-header-card,
+    .content-article-card, .toc-card, .contact-form-container, .contact-card-item),
+.ice-gallery-home :is(.tuner-container, #video-status),
+.ice-gallery-home :is(#img-results, #video-results) > .card {
+  border: 1px solid var(--glass-edge);
+  background: var(--glass-surface);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+}
+.ice-gallery-home :is(.tuner-sliders, .zoom-card),
+.ice-gallery-home .result-card .grid > div {
+  border-color: #ffffffd9;
+  background: #ffffff73;
+  box-shadow: inset 0 1px #ffffffb3, 0 2px 8px #34486705;
+}
+.ice-gallery-home .canvas-wrapper { border-color: #d1deed; background: #ecf2f9; }
+.ice-gallery-home .device-note { border-color: #ffffffcf; background: #ffffff6b; color: #4a5e78; }
+:is(.ice-gallery-home, .ice-glass-page) :is(.dropdown-menu, .custom-select-options, .header-actions) {
+  border: 1px solid #ffffffed;
+  background: #f7faffed;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
+}
+.ice-glass-page :is(.form-input, .form-textarea) { border-color: #d5e0ed; background: #ffffff8c; }
+:is(.ice-gallery-home, .ice-glass-page) .section-title { font-weight: 650; letter-spacing: -0.04em; }
+:is(.ice-gallery-home, .ice-glass-page) .app-footer { background: #ffffff59; border-top-color: #ffffffcc; }
+.ice-gallery-home .ice-gallery-image { filter: drop-shadow(0 18px 24px #4b67981a); }
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ice-gallery-home .showcase-choose:hover { transform: translateY(-1px); }
+  :is(.ice-gallery-home, .ice-glass-page) .btn:active { transform: translateY(1px); }
+}
+@media (max-width: 767px) {
+  .ice-gallery-home .showcase-choose { width: 100%; max-width: 280px; padding-inline: 1.25rem; }
+  .ice-gallery-home .hero-title { letter-spacing: -0.045em; }
+  :is(.ice-gallery-home, .ice-glass-page) > .app-header { border-radius: 26px; }
+}
+@media (pointer: coarse), (prefers-reduced-transparency: reduce) {
+  :is(.ice-gallery-home, .ice-glass-page) :is(.step-card, .method-card, .model-card,
+      .feature-card, .faq-item, .video-guide-card, .synthid-card, .page-header-card,
+      .content-article-card, .toc-card, .contact-form-container, .contact-card-item),
+  .ice-gallery-home :is(.tuner-container, #video-status),
+  .ice-gallery-home :is(#img-results, #video-results) > .card {
+    background: #ffffffc7;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :is(.ice-gallery-home, .ice-glass-page) { --glass-surface: #ffffffeb; }
+  :is(.ice-gallery-home, .ice-glass-page) > .app-header { background: #fffffff2; }
+}
