@@ -1422,7 +1422,7 @@ function initImageRemover() {
 
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
-              <input type="checkbox" id="batch-img-auto-dl" checked style="width: 16px; height: 16px; accent-color: #6366f1;" />
+              <input type="checkbox" id="batch-img-auto-dl" style="width: 16px; height: 16px; accent-color: #6366f1;" />
               <span>Automatically download each clean image when finished</span>
             </label>
             <button id="batch-img-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
@@ -2102,7 +2102,7 @@ function initVideoRemover() {
 
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; cursor: pointer; color: #334155;">
-              <input type="checkbox" id="batch-vid-auto-dl" checked style="width: 16px; height: 16px; accent-color: #6366f1;" />
+              <input type="checkbox" id="batch-vid-auto-dl" style="width: 16px; height: 16px; accent-color: #6366f1;" />
               <span>Automatically download each clean video when finished</span>
             </label>
             <button id="batch-vid-dl-all-btn" class="btn btn-primary hidden" style="padding: 0.45rem 1rem; font-size: 0.85rem;">
