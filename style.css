@@ -470,16 +470,17 @@ body {
   user-select: none;
   z-index: 1;
   top: 155px;
-  width: clamp(270px, 27vw, 350px);
+  width: clamp(160px, calc((100vw - 1000px) / 2 - 24px), 280px);
 }
 
 .hero-bg-frame-container.left {
-  left: -1%;
+  left: auto;
+  right: calc(100% + 12px);
 }
 
 .hero-bg-frame-container.right {
-  right: -1%;
-  left: auto;
+  right: auto;
+  left: calc(100% + 12px);
   top: 175px;
 }
 
@@ -1602,11 +1603,14 @@ body {
   }
 }
 
-@media (max-width: 1100px) {
+/* Show decorative art only when there is room outside the content column. */
+@media (max-width: 1359px) {
   .hero-bg-frame-container {
     display: none !important;
   }
+}
 
+@media (max-width: 1100px) {
   .btn-github-label {
     display: none;
   }
