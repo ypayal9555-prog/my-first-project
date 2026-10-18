@@ -252,7 +252,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://code.iconify.design">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261018-ice-gallery" />
+  <link rel="stylesheet" href="./style.css?v=20261018-random-comparison" />
   <script defer src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 
@@ -676,14 +676,17 @@
         </div>
 
         <!-- Right Side: Both Before and After Images -->
-        <div class="comparison-media">
+        <div class="comparison-media" id="random-comparison">
           <div class="comparison-card">
             <span class="comparison-badge badge-before">
               <iconify-icon icon="ph:x-circle" width="14"></iconify-icon> Before
             </span>
-            <div class="comparison-img-wrapper checker">
-              <img src="./assets/before.webp" alt="Google Gemini image with visible watermark logo before removal"
-                width="400" height="400" loading="lazy" decoding="async" />
+            <div class="comparison-img-wrapper comparison-photo">
+              <img id="comparison-before" src="./assets/comparison-fox.png" alt="Illustrative fox image with a sample sparkle watermark"
+                width="1120" height="1400" loading="lazy" decoding="async" />
+              <svg class="comparison-sparkle" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M24 0C28 16 32 20 48 24C32 28 28 32 24 48C20 32 16 28 0 24C16 20 20 16 24 0Z" />
+              </svg>
             </div>
           </div>
 
@@ -691,15 +694,17 @@
             <span class="comparison-badge badge-after">
               <iconify-icon icon="ph:check-circle" width="14"></iconify-icon> After
             </span>
-            <div class="comparison-img-wrapper checker">
-              <img src="./assets/after.webp"
-                alt="Clean Google Gemini image after watermark and logo removal with zero quality loss" width="400"
-                height="400" loading="lazy" decoding="async" />
+            <div class="comparison-img-wrapper comparison-photo">
+              <img id="comparison-after" src="./assets/comparison-fox.png"
+                alt="The same illustrative fox image without the sample sparkle watermark" width="1120"
+                height="1400" loading="lazy" decoding="async" />
             </div>
           </div>
         </div>
       </div>
     </section>
+
+    <script src="./comparison.js?v=20261018-random-comparison"></script>
 
     <!-- Gemini Watermark Methods Guide -->
     <section id="guide" class="guide-section">
