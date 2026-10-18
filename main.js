@@ -2504,3 +2504,113 @@ function initCustomSelects() {
     document.querySelectorAll('.custom-select.open').forEach((s) => s.classList.remove('open'));
   });
 }
+
+
+// Keep the image/video switch easy to use from a keyboard.
+(() => {
+  function setupAccessibleTabs() {
+    const image = document.getElementById('tab-image');
+    const video = document.getElementById('tab-video');
+    const imagePanel = document.getElementById('panel-image');
+    const videoPanel = document.getElementById('panel-video');
+    if (!image || !video || !imagePanel || !videoPanel) return;
+    image.parentElement.setAttribute('role', 'tablist');
+    image.parentElement.setAttribute('aria-label', 'Watermark remover mode');
+    [[image, imagePanel], [video, videoPanel]].forEach(([tab, panel]) => {
+      tab.setAttribute('role', 'tab'); tab.setAttribute('aria-controls', panel.id);
+      panel.setAttribute('role', 'tabpanel'); panel.setAttribute('aria-labelledby', tab.id);
+    });
+    const sync = () => {
+      [image, video].forEach(tab => {
+        const selected = tab.classList.contains('active');
+        tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1;
+      });
+    };
+    image.addEventListener('click', sync); video.addEventListener('click', sync); sync();
+    [image, video].forEach(tab => tab.addEventListener('keydown', event => {
+      if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+      event.preventDefault();
+      const target = event.key === 'Home' ? image : event.key === 'End' ? video : tab === image ? video : image;
+      target.click(); target.focus();
+    }));
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupAccessibleTabs);
+  else setupAccessibleTabs();
+})();
+// Small interface enhancements; processing and download paths are independent.
+(() => {
+  function initInteractions() {
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.remove('reveal-pending');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.step-card, .method-card, .model-card, .feature-card').forEach(card => {
+        // Cards already on screen stay visible, including after back navigation.
+        if (card.getBoundingClientRect().top < innerHeight) return;
+        observer.observe(card);
+        card.classList.add('reveal-pending');
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initInteractions);
+  else initInteractions();
+})();
+
+
+// Cursor light and a restrained tilt on decorative surfaces. One frame per move.
+(() => {
+  function initCursorSurfaces() {
+    if (!document.body.matches('.ice-gallery-home, .ice-glass-page')) return;
+    const preference = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+    const selector = '.step-card, .method-card, .model-card, .feature-card, .contact-card-item, .comparison-img-wrapper, .ice-gallery, .dropzone';
+    document.querySelectorAll(selector).forEach(surface => surface.classList.add('cursor-surface'));
+    let active = null;
+    let bounds = null;
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    function reset() {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      if (active) {
+        active.classList.remove('cursor-active');
+        ['--cursor-x', '--cursor-y', '--tilt-x', '--tilt-y'].forEach(name => active.style.removeProperty(name));
+      }
+      active = null;
+      bounds = null;
+    }
+    document.addEventListener('pointermove', event => {
+      if (!preference.matches || event.pointerType !== 'mouse') { reset(); return; }
+      const surface = event.target instanceof Element ? event.target.closest('.cursor-surface') : null;
+      if (!surface || surface.classList.contains('loading')) { reset(); return; }
+      if (surface !== active) {
+        reset();
+        active = surface;
+        bounds = surface.getBoundingClientRect();
+        active.classList.add('cursor-active');
+      }
+      x = Math.max(0, Math.min(bounds.width, event.clientX - bounds.left));
+      y = Math.max(0, Math.min(bounds.height, event.clientY - bounds.top));
+      if (!frame) frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (!active || !bounds.width || !bounds.height) return;
+        active.style.setProperty('--cursor-x', x + 'px');
+        active.style.setProperty('--cursor-y', y + 'px');
+        active.style.setProperty('--tilt-x', ((0.5 - y / bounds.height) * 4).toFixed(2) + 'deg');
+        active.style.setProperty('--tilt-y', ((x / bounds.width - 0.5) * 4).toFixed(2) + 'deg');
+      });
+    }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', reset);
+    window.addEventListener('blur', reset);
+    window.addEventListener('scroll', reset, { passive: true, capture: true });
+    window.addEventListener('resize', reset, { passive: true });
+    document.addEventListener('visibilitychange', reset);
+    preference.addEventListener('change', reset);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCursorSurfaces);
+  else initCursorSurfaces();
+})();
