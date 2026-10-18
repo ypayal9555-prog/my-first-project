@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ishara-madu.github.io/gemini-watermark-remover/sitemap.xml
+Sitemap: https://ypayal9555-prog.github.io/my-first-project/sitemap.xml
