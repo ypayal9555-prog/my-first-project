@@ -252,11 +252,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://code.iconify.design">
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261018-hero-layout" />
+  <link rel="stylesheet" href="./style.css?v=20261018-design-one" />
   <script defer src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 
-<body>
+<body class="showcase-home">
 
   <!-- Top Navigation Header -->
   <header class="app-header">
@@ -357,25 +357,20 @@
   </header>
 
   <main class="container">
+    <div class="hero-workspace">
     <!-- Hero Section -->
     <div class="hero-section">
       <h1 class="hero-title">Free Gemini Watermark Remover &amp; Logo Remover</h1>
       <p class="hero-description">
-        The fastest way to <strong>remove Gemini watermark from video</strong> (Gemini Omni, Google Flow &amp; Veo) and
-        erase logos from
-        <strong style="color: #64748b">Gemini Nano Banana AI images</strong>. 100% free, local browser processing, no
-        upload, and original quality.
+        Remove Gemini and Veo watermarks in your browser.
       </p>
       <div class="hero-badges">
         <span class="hero-badge-pill"><iconify-icon icon="ph:sparkle-bold" width="15"
-            style="color: #059669;"></iconify-icon> 100% Free Gemini Watermark Remover</span>
+            style="color: #059669;"></iconify-icon> 100% Free</span>
         <span class="hero-badge-pill"><iconify-icon icon="ph:image-square-bold" width="15"
-            style="color: #2563eb;"></iconify-icon> Gemini &amp; Nano Banana Images</span>
+            style="color: #2563eb;"></iconify-icon> Private Processing</span>
         <a href="#panel-video" class="hero-badge-pill hero-badge-link" id="hero-badge-video-link"><iconify-icon
-            icon="ph:video-camera-bold" width="15" style="color: #7c3aed;"></iconify-icon> Gemini Video Watermark
-          Remover</a>
-        <span class="hero-badge-pill"><iconify-icon icon="ph:shield-check-bold" width="15"
-            style="color: #0d9488;"></iconify-icon> Private &amp; Lossless</span>
+            icon="ph:stack-bold" width="15" style="color: #7c3aed;"></iconify-icon> Batch Support</a>
       </div>
     </div>
 
@@ -415,6 +410,7 @@
         </div>
         <p class="dropzone-title">Upload or drag one or multiple Gemini Images</p>
         <p class="dropzone-sub">Supports PNG, JPG, WebP (Batch Queue Supported)</p>
+        <button type="button" class="showcase-choose">Choose Images</button>
         <input id="img-input" type="file" accept="image/*" multiple class="hidden" />
       </div>
 
@@ -518,6 +514,7 @@
         </div>
         <p class="dropzone-title">Upload or drag one or multiple Gemini Omni, Flow, or Veo videos</p>
         <p class="dropzone-sub">Supports MP4, WebM, MOV (Batch Queue Supported)</p>
+        <button type="button" class="showcase-choose">Choose Videos</button>
         <input id="video-input" type="file" accept="video/*" multiple class="hidden" />
       </div>
 
@@ -624,6 +621,8 @@
 
       <div id="video-results" class="hidden mt-4"></div>
     </section>
+
+    </div><!-- /hero-workspace -->
 
     <!-- How It Works Step-by-Step Section -->
     <section id="how-it-works" class="how-it-works-section">
