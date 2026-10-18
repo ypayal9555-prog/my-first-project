@@ -470,15 +470,15 @@ body {
   user-select: none;
   z-index: 1;
   top: 155px;
-  width: clamp(230px, 21vw, 310px);
+  width: clamp(270px, 27vw, 350px);
 }
 
 .hero-bg-frame-container.left {
-  left: -18%;
+  left: -1%;
 }
 
 .hero-bg-frame-container.right {
-  right: -18%;
+  right: -1%;
   left: auto;
   top: 175px;
 }
