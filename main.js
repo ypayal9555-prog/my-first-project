@@ -987,6 +987,45 @@ function smoothScrollTo(element, offset = 75) {
   }, 100);
 }
 
+function isEditablePasteTarget(node) {
+  if (!node || node.nodeType !== 1) return false;
+  const tag = node.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  return node.isContentEditable === true;
+}
+
+function getClipboardFiles(event) {
+  const dt = event.clipboardData;
+  if (!dt) return [];
+  const files = [];
+  const items = dt.items;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item && item.kind === 'file') {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
+    }
+  }
+  if (!files.length && dt.files && dt.files.length) {
+    for (let i = 0; i < dt.files.length; i++) files.push(dt.files[i]);
+  }
+  return files;
+}
+
+function revealToolPanel(target) {
+  const tab = document.getElementById(target === 'image' ? 'tab-image' : 'tab-video');
+  if (tab && !tab.classList.contains('active')) tab.click();
+  const panel = document.getElementById(target === 'image' ? 'panel-image' : 'panel-video');
+  if (panel) {
+    const rect = panel.getBoundingClientRect();
+    if (rect.top < 0 || rect.top > window.innerHeight * 0.6) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+}
+
 function init() {
   initTabs();
   initImageRemover();
@@ -1144,7 +1183,7 @@ function initImageRemover() {
           <iconify-icon icon="ph:upload-simple-bold"></iconify-icon>
         </div>
         <p class="dropzone-title">Upload or drag your Gemini Image</p>
-        <p class="dropzone-sub">Supports PNG, JPG, WebP</p>
+        <p class="dropzone-sub">Supports PNG, JPG, WebP — or press Ctrl+V to paste</p>
       `;
     }
   }
@@ -1274,6 +1313,18 @@ function initImageRemover() {
     if (e.target.files.length) handleImageFiles(Array.from(e.target.files));
     fileInput.value = '';
   };
+
+  document.addEventListener('paste', (e) => {
+    if (isProcessing || e.defaultPrevented) return;
+    if (isEditablePasteTarget(e.target)) return;
+    const pasted = getClipboardFiles(e).filter((file) =>
+      file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(file.name || '')
+    );
+    if (!pasted.length) return;
+    e.preventDefault();
+    revealToolPanel('image');
+    handleImageFiles(pasted);
+  });
 
   async function grabImageFrame(file) {
     if (typeof createImageBitmap === 'function') {
@@ -1707,7 +1758,7 @@ function initVideoRemover() {
           <iconify-icon icon="ph:video-bold"></iconify-icon>
         </div>
         <p class="dropzone-title">Upload or drag a Gemini Veo 3 video</p>
-        <p class="dropzone-sub">Supports MP4, WebM, MOV</p>
+        <p class="dropzone-sub">Supports MP4, WebM, MOV — or press Ctrl+V to paste</p>
       `;
     }
   }
@@ -1837,6 +1888,18 @@ function initVideoRemover() {
     if (e.target.files.length) handleVideoFiles(Array.from(e.target.files));
     fileInput.value = '';
   };
+
+  document.addEventListener('paste', (e) => {
+    if (isProcessing || e.defaultPrevented) return;
+    if (isEditablePasteTarget(e.target)) return;
+    const pasted = getClipboardFiles(e).filter((file) =>
+      file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogv)$/i.test(file.name || '')
+    );
+    if (!pasted.length) return;
+    e.preventDefault();
+    revealToolPanel('video');
+    handleVideoFiles(pasted);
+  });
 
   function isFrameMeaningful(imageData) {
     const data = imageData.data;
