@@ -990,7 +990,13 @@ function smoothScrollTo(element, offset = 75) {
 function isEditablePasteTarget(node) {
   if (!node || node.nodeType !== 1) return false;
   const tag = node.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  if (tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  if (tag === 'INPUT') {
+    const type = (node.type || 'text').toLowerCase();
+    // Sliders, checkboxes and buttons keep focus after a click, but Ctrl+V
+    // should still reach the tool instead of being swallowed there.
+    return !['range', 'checkbox', 'radio', 'button', 'submit', 'reset', 'file', 'color', 'image'].includes(type);
+  }
   return node.isContentEditable === true;
 }
 
@@ -1417,7 +1423,7 @@ function initImageRemover() {
   }
 
   async function handleImageFiles(files) {
-    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    const imageFiles = files.filter(f => f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(f.name || ''));
     if (!imageFiles.length) {
       alert('Please drop or select valid image files (PNG, JPG, WebP).');
       return;
@@ -1890,10 +1896,10 @@ function initVideoRemover() {
   };
 
   document.addEventListener('paste', (e) => {
-    if (isProcessing || e.defaultPrevented) return;
+    if (isProcessing) return;
     if (isEditablePasteTarget(e.target)) return;
     const pasted = getClipboardFiles(e).filter((file) =>
-      file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogv)$/i.test(file.name || '')
+      file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|mkv|ogv)$/i.test(file.name || '')
     );
     if (!pasted.length) return;
     e.preventDefault();
