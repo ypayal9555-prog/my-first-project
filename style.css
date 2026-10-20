@@ -3838,3 +3838,25 @@ body.ice-glass-page {
   .ice-gallery-home .tab-btn { gap: 0.3rem; padding: 0.7rem 0.4rem; font-size: 0.8rem; }
   .ice-gallery-home .hero-workspace .hero-title { font-size: 1.8rem; }
 }
+
+/* Accessibility: skip to content link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 0.7rem 1.2rem;
+  background: var(--brand-primary);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 0.7rem 0;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 0;
+  outline: 3px solid #0f172a;
+  outline-offset: 2px;
+}

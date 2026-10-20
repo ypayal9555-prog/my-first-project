@@ -5,5 +5,10 @@
   "description": "Client-side Gemini image and video watermark processing tool.",
   "scripts": {
     "start": "python -m http.server 8000"
+  },
+  "homepage": "https://ypayal9555-prog.github.io/my-first-project/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ypayal9555-prog/my-first-project.git"
   }
 }
