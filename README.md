@@ -104,5 +104,3 @@ If you found this tool helpful, consider giving it a ⭐️ star on GitHub:
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
-Original project by [Ishara Madushanka](https://github.com/ishara-madu), used under the MIT License.
